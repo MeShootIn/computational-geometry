@@ -1,16 +1,16 @@
 /**
  * Проверка выпуклой оболочки
-*/
+ */
 
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <algorithm>
 
-#define UNDEF -2
-#define EPS 1e-6
-
 using namespace std;
+
+int const UNDEF = -2;
+double const EPS = 1e-6;
 
 // Точка - псевдоним вектора
 typedef class Vector Point;
@@ -33,7 +33,7 @@ public:
     // Унарный минус
     Vector operator-() const;
 
-    // Полярный угол вектора в радианах в диапозоне [-M_PI, M_PI)
+    // Полярный угол в диапозоне [-M_PI, M_PI)
     double angle() const;
 };
 
@@ -121,16 +121,16 @@ double Vector::angle() const
 
 /**
  * a == b с погрешностью EPS.
-*/
-bool Equals(double a, double b)
+ */
+bool equals(double a, double b)
 {
     return fabs(a - b) <= EPS;
 }
 
 /**
  * a <= b с погрешностью EPS.
-*/
-bool LessOrEquals(double a, double b)
+ */
+bool lessOrEquals(double a, double b)
 {
     return b - a >= EPS;
 }
@@ -142,36 +142,30 @@ bool LessOrEquals(double a, double b)
  */
 int sgn(double x)
 {
-    return (Equals(x, 0.)) ? 0 : ((LessOrEquals(x, 0.)) ? -1 : 1);
+    return (equals(x, 0.)) ? 0 : ((lessOrEquals(x, 0.)) ? -1 : 1);
 }
 
 /**
  * Знаковая площадь треугольника по точкам. Время: O(1).
-*/
-double SignedS(Point const &a, Point const &b, Point const &c)
+ */
+double signedS(Point const &a, Point const &b, Point const &c)
 {
     return (a.x * (b.y - c.y) - a.y * (b.x - c.x) + (b.x * c.y - b.y * c.x)) / 2.;
 }
 
 /**
- * Проверка оболочки на выпуклость. Оболочка должна быть отсортирована по неубыванию (невозрастанию) полярного угла 
- * относительно любой своей внутренней точки. Время: O(N), где N = |hull|.
- * @param hull проверяемая оболочка.
-*/
-bool isConvex(vector<Point> const &hull)
+ * Проверка многоугольника на выпуклость. Многоугольник должен быть отсортирован по неубыванию (невозрастанию) полярного
+ * угла относительно любой своей внутренней точки. Время: O(N), где N = |poly|.
+ * @param poly точки многоугольника.
+ */
+bool isConvex(vector<Point> const &poly)
 {
-    auto N = hull.size();
-
-    if (N <= 2)
-    {
-        return false;
-    }
-
+    auto N = poly.size();
     auto mainSgn = UNDEF;
 
     for (size_t i = 0; i < N; ++i)
     {
-        auto S = SignedS(hull[i], hull[(i + 1) % N], hull[(i + 2) % N]);
+        auto S = signedS(poly[i], poly[(i + 1) % N], poly[(i + 2) % N]);
         auto sgnS = sgn(S);
 
         if (sgnS == 0)
@@ -193,13 +187,13 @@ bool isConvex(vector<Point> const &hull)
 }
 
 /**
- * Проверка принадлежности точки многоугольнику. Многоугольник должен быть отсортирован по неубыванию (невозрастанию) 
+ * Проверка принадлежности точки многоугольнику. Многоугольник должен быть отсортирован по неубыванию (невозрастанию)
  * полярного угла относительно внутренней точки q. Время: O(log(N)), где N = |poly| = |polyAngles|.
  * @param poly вершины многоугольника.
  * @param polyAngles полярные углы вершин относительно q.
  * @param q любая внутренняя точка многоугольника.
  * @param p проверяемая точка.
-*/
+ */
 bool pointInPoly(vector<Point> const &poly, vector<double> const &polyAngles, Point const &q, Point const &p)
 {
     auto N = poly.size();
@@ -219,8 +213,8 @@ bool pointInPoly(vector<Point> const &poly, vector<double> const &polyAngles, Po
         i2 = 0;
     }
 
-    auto sgn1 = sgn(SignedS(poly[i1], q, poly[i2]));
-    auto sgn2 = sgn(SignedS(poly[i1], p, poly[i2]));
+    auto sgn1 = sgn(signedS(poly[i1], q, poly[i2]));
+    auto sgn2 = sgn(signedS(poly[i1], p, poly[i2]));
 
     if (sgn1 * sgn2 < 0 || (sgn1 == 0 && sgn2 != 0))
     {
@@ -231,12 +225,12 @@ bool pointInPoly(vector<Point> const &poly, vector<double> const &polyAngles, Po
 }
 
 /**
- * Проверка принадлежности точек многоугольнику. Многоугольник должен быть отсортирован по неубыванию (невозрастанию) 
+ * Проверка принадлежности точек многоугольнику. Многоугольник должен быть отсортирован по неубыванию (невозрастанию)
  * полярного угла относительно внутренней точки q. Время: O(N*log(M) + M), где N = |points|, M = |poly|.
  * @param poly вершины многоугольника.
  * @param q любая внутренняя точка многоугольника.
  * @param points проверяемые точки.
-*/
+ */
 bool pointsInPoly(vector<Point> const &poly, Point const &q, vector<Point> const &points)
 {
     auto M = poly.size();
@@ -259,17 +253,10 @@ bool pointsInPoly(vector<Point> const &poly, Point const &q, vector<Point> const
 }
 
 /**
- * Центр тяжести треугольника. Время: O(1).
-*/
-Point triangleCenter(Point const &a, Point const &b, Point const &c)
-{
-    return (a + b + c) / 3.;
-}
-
-/**
  * Центр тяжести простого многоугольника. Время: O(N), где N = |poly|.
  * @param poly точки многоугольника.
-*/
+ * @return Если N > 0, то точка центра тяжести. Иначе Point(nan, nan).
+ */
 Point polyCenter(vector<Point> const &poly)
 {
     auto N = poly.size();
@@ -286,26 +273,35 @@ Point polyCenter(vector<Point> const &poly)
 }
 
 /**
- * Проверка выпуклой оболочки. Время: O(N*log(C)), где N = |points|, C = |hullIndexes|.
+ * Проверка выпуклой оболочки. Время: O(N*log(C)), где N = |points|, C = |hullIndexes|, причём N >= C.
  * @param points все точки.
  * @param hullIndexes индексы точек оболочки.
-*/
+ */
 bool convexHullCheck(vector<Point> const &points, vector<size_t> hullIndexes)
 {
     auto N = points.size();
     auto C = hullIndexes.size();
-    vector<Point> hull;
-    // O(C)
-    hull.reserve(C);
-
     auto M = N - C;
-    vector<Point> Points;
-    // O(M)
-    Points.reserve(M);
+
+    if (C == 0)
+    {
+        if (M == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     // Сортировка индексов по неубыванию
-    // O(C*log(C))
-    sort(hullIndexes.begin(), hullIndexes.end());
+    sort(hullIndexes.begin(), hullIndexes.end()); // O(C*log(C))
+
+    vector<Point> hull;
+    hull.reserve(C); // O(C)
+    vector<Point> Points;
+    Points.reserve(M); // O(M)
 
     // Заполнение массивов
     // O(M + C)
@@ -323,8 +319,7 @@ bool convexHullCheck(vector<Point> const &points, vector<size_t> hullIndexes)
     }
 
     // Поиск центра тяжести оболочки
-    // O(C)
-    Vector q = polyCenter(hull);
+    Vector q = polyCenter(hull); // O(C)
 
     // Сортировка точек оболочки по неубыванию полярного угла относительно центра тяжести
     // O(C*log(C))
@@ -347,8 +342,7 @@ bool convexHullCheck(vector<Point> const &points, vector<size_t> hullIndexes)
     }
 
     // Проверка принадлежности внутренних точек оболочке
-    // O(M*log(C))
-    return pointsInPoly(hull, q, Points);
+    return pointsInPoly(hull, q, Points); // O(M*log(C))
 }
 
 int main()
@@ -371,7 +365,7 @@ int main()
 
     if (C > N)
     {
-        cout << "error: C must be such that it is <= N";
+        cout << "error: C must be <= N";
 
         return 0;
     }
@@ -385,7 +379,7 @@ int main()
 
         if (!(0 <= index && index < N))
         {
-            cout << "error: hullIndexes[" << i << "] must be such that it is >= 0 and < N";
+            cout << "error: hullIndexes[" << i << "] must be >= 0 and < N";
 
             return 0;
         }
