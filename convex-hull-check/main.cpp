@@ -1,5 +1,5 @@
 /**
- * Проверка выпуклой оболочки
+ * Проверка выпуклой оболочки.
  */
 
 #include <iostream>
@@ -10,12 +10,16 @@
 using namespace std;
 
 int const UNDEF = -2;
-double const EPS = 1e-6;
+double const EPS = 1e-10;
 
-// Точка - псевдоним вектора
+/**
+ * Точка - псевдоним вектора.
+ */
 typedef class Vector Point;
 
-// Вектор
+/**
+ * Вектор.
+ */
 class Vector
 {
 public:
@@ -25,16 +29,28 @@ public:
     Vector();
     Vector(double x, double y);
     Vector(Point const &start, Point const &end);
-    // Конструктор копирования
+    /**
+     * Конструктор копирования.
+     */
     Vector(Vector const &v);
 
-    // Оператор присваивания
+    /**
+     * Оператор присваивания.
+     */
     Vector &operator=(Vector const &v);
-    // Унарный минус
+    /**
+     * Унарный минус.
+     */
     Vector operator-() const;
 
-    // Полярный угол в диапозоне [-M_PI, M_PI)
+    /**
+     * Полярный угол в диапозоне [-M_PI, M_PI).
+     */
     double angle() const;
+    /**
+     * Длина вектора.
+     */
+    double length() const;
 };
 
 Vector::Vector() : x(0.), y(0.) {}
@@ -119,6 +135,11 @@ double Vector::angle() const
     return atan2(y, x);
 }
 
+double Vector::length() const
+{
+    return sqrt(x * x + y * y);
+}
+
 /**
  * a == b с погрешностью EPS.
  */
@@ -146,11 +167,11 @@ int sgn(double x)
 }
 
 /**
- * Знаковая площадь треугольника по точкам. Время: O(1).
+ * Знаковая площадь треугольника по точкам.
  */
 double signedS(Point const &a, Point const &b, Point const &c)
 {
-    return (a.x * (b.y - c.y) - a.y * (b.x - c.x) + (b.x * c.y - b.y * c.x)) / 2.;
+    return (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2.;
 }
 
 /**
@@ -331,7 +352,19 @@ bool convexHullCheck(vector<Point> const &points, vector<size_t> hullIndexes)
             Vector v1(q, a);
             Vector v2(q, b);
 
-            return v1.angle() < v2.angle();
+            auto S = signedS(q, a, b);
+
+            if (equals(S, .0))
+            {
+                return v1.length() < v2.length();
+            }
+
+            if (lessOrEquals(S, .0))
+            {
+                return false;
+            }
+
+            return true;
         });
 
     // Проверка оболочки на выпуклость
