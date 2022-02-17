@@ -11,6 +11,6 @@ for INPUT_PATH in ./$TEST_DIR/$INPUT_DIR/*; do
 
 	if [ "$GOT" != "$EXPECTED" ]
 	then
-		echo $FILE: got $GOT, expected $EXPECTED
+		echo $FILE: got \"$GOT\", expected \"$EXPECTED\"
 	fi
 done
