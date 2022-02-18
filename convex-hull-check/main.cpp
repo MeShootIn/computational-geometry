@@ -10,7 +10,7 @@
 using namespace std;
 
 int const UNDEF = -2;
-double const EPS = 1e-10;
+double const EPS = 1e-6;
 
 /**
  * Точка - псевдоним вектора.
@@ -310,13 +310,11 @@ bool convexHullCheck(vector<Point> const &points, vector<size_t> hullIndexes)
     // Сортировка индексов по неубыванию
     sort(hullIndexes.begin(), hullIndexes.end()); // O(C*log(C))
 
-    vector<Point> hull;
-    hull.reserve(C); // O(C)
-    vector<Point> Points;
-    Points.reserve(M); // O(M)
-
     // Заполнение массивов
     // O(M + C)
+    vector<Point> hull;
+    vector<Point> Points;
+
     for (size_t i = 0, c = 0; i < N; ++i)
     {
         if (i == hullIndexes[c])
