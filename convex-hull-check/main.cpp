@@ -3,9 +3,9 @@
  */
 
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <cmath>
-#include <algorithm>
 
 using namespace std;
 
@@ -313,11 +313,13 @@ bool convexHullCheck(vector<Point> const &points, vector<size_t> hullIndexes)
     // Заполнение массивов
     // O(M + C)
     vector<Point> hull;
+    hull.reserve(C);
     vector<Point> Points;
+    Points.reserve(M);
 
     for (size_t i = 0, c = 0; i < N; ++i)
     {
-        if (i == hullIndexes[c])
+        if (c < C && i == hullIndexes[c])
         {
             hull.push_back(points[i]);
             ++c;
