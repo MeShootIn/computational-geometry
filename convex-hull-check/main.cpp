@@ -3,14 +3,14 @@
  */
 
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <cmath>
-#include <algorithm>
 
 using namespace std;
 
 int const UNDEF = -2;
-double const EPS = 1e-10;
+double const EPS = 1e-6;
 
 /**
  * Точка - псевдоним вектора.
@@ -47,10 +47,6 @@ public:
      * Полярный угол в диапозоне [-M_PI, M_PI).
      */
     double angle() const;
-    /**
-     * Длина вектора.
-     */
-    double length() const;
 };
 
 Vector::Vector() : x(0.), y(0.) {}
@@ -133,11 +129,6 @@ Vector &operator/=(Vector &v, double d)
 double Vector::angle() const
 {
     return atan2(y, x);
-}
-
-double Vector::length() const
-{
-    return sqrt(x * x + y * y);
 }
 
 /**
@@ -319,16 +310,16 @@ bool convexHullCheck(vector<Point> const &points, vector<size_t> hullIndexes)
     // Сортировка индексов по неубыванию
     sort(hullIndexes.begin(), hullIndexes.end()); // O(C*log(C))
 
-    vector<Point> hull;
-    hull.reserve(C); // O(C)
-    vector<Point> Points;
-    Points.reserve(M); // O(M)
-
     // Заполнение массивов
     // O(M + C)
+    vector<Point> hull;
+    hull.reserve(C);
+    vector<Point> Points;
+    Points.reserve(M);
+
     for (size_t i = 0, c = 0; i < N; ++i)
     {
-        if (i == hullIndexes[c])
+        if (c < C && i == hullIndexes[c])
         {
             hull.push_back(points[i]);
             ++c;
@@ -352,19 +343,7 @@ bool convexHullCheck(vector<Point> const &points, vector<size_t> hullIndexes)
             Vector v1(q, a);
             Vector v2(q, b);
 
-            auto S = signedS(q, a, b);
-
-            if (equals(S, .0))
-            {
-                return v1.length() < v2.length();
-            }
-
-            if (lessOrEquals(S, .0))
-            {
-                return false;
-            }
-
-            return true;
+            return v1.angle() < v2.angle();
         });
 
     // Проверка оболочки на выпуклость
