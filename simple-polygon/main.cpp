@@ -3,6 +3,7 @@
  */
 
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <vector>
 #include <cmath>
@@ -10,7 +11,8 @@
 using namespace std;
 
 int const UNDEF = -2;
-double const EPS = 1e-6;
+int const PREC = 15;
+double const EPS = 1e-15;
 
 /**
  * Точка - псевдоним вектора.
@@ -179,7 +181,7 @@ Point gravityCenter(vector<Point> const &points)
 }
 
 /**
- * Простой многоугольник (самонепересекающаяся замкнутая ломанная) на множестве точек.
+ * Простой многоугольник (самонепересекающаяся замкнутая ломанная) на множестве вершин.
  * Время: O(N*log(N)), где N = |points|.
  * @param points исходный вектор точек.
  * @return вектор точек простого многоугольника.
@@ -191,7 +193,7 @@ vector<Point> simplePolygon(vector<Point> const &points)
     vector<Point> poly = points;
     auto q = gravityCenter(poly);
 
-    // Сортировка точек по неубыванию полярного угла и по невозрастанию расстояния относительно центра тяжести
+    // Сортировка точек по неубыванию полярного угла и по неубыванию расстояния относительно центра тяжести
     // O(N*log(N))
     sort(
         poly.begin(),
@@ -203,10 +205,10 @@ vector<Point> simplePolygon(vector<Point> const &points)
 
             if (equals(v1.angle(), v2.angle()))
             {
-                return v1.length() < v2.length();
+                return lessOrEquals(v1.length(), v2.length());
             }
 
-            return v1.angle() < v2.angle();
+            return lessOrEquals(v1.angle(), v2.angle());
         });
 
     return poly;
@@ -214,6 +216,9 @@ vector<Point> simplePolygon(vector<Point> const &points)
 
 int main()
 {
+    cout.precision(PREC);
+    cout.setf(ios::fixed, ios::floatfield);
+
     size_t N;
     cin >> N;
 
