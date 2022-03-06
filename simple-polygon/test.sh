@@ -10,3 +10,5 @@ for INPUT_PATH in ./test/input/*; do
     echo "$GOT"
     echo
 done
+
+sudo rm ./main
