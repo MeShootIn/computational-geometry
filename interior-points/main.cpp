@@ -11,9 +11,9 @@ struct Point {
   ll x, y;
 };
 
-ll get_area(vector<Point> P) {
+double get_area(vector<Point> P) {
   int N = P.size();
-  ll s = 0;
+  double s = 0.;
 
   for(int i = 1; i < N; i++) {
     s += P[i - 1].x * P[i].y - P[i].x * P[i - 1].y;
@@ -21,9 +21,7 @@ ll get_area(vector<Point> P) {
 
   s += P[N - 1].x * P[0].y - P[N - 1].y * P[0].x;
 
-  double semi_area = s / 2.;
-
-  return llround(fabs(semi_area));
+  return fabs(s / 2.);
 }
 
 ll gcd(ll a, ll b) {
@@ -41,16 +39,16 @@ ll on_edge(Point p1, Point p2) {
 
 ll solve(vector<Point> P) {
   int N = P.size();
-  ll S = get_area(P);
-  ll edge = 0;
+  double S = get_area(P);
+  double edge = 0.;
 
   for(int i = 0; i < N; i++) {
-    edge += on_edge(P[i], P[(i + 1) % N]);
+    edge += (double) on_edge(P[i], P[(i + 1) % N]);
   }
 
-  edge += N;
+  edge += (double) N;
 
-  return S - edge / 2 + 1;
+  return llround(S - edge / 2. + 1.);
 }
 
 int main() {
